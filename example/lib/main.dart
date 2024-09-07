@@ -32,12 +32,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   // Capture The Image
-  void _captureImage() async {
-    _base64Image = await _cameraLinuxPlugin.captureImage();
-    setState(() {
-      _isCameraOpen = true;
-    });
-  }
+  void _captureImage() async {}
 
   // Close The Camera
   void _stopCamera() {

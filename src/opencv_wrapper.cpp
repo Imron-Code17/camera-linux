@@ -8,6 +8,7 @@ using namespace cv;
     
 std::thread videoThread;
 std::atomic<bool> stopFlag(false);
+std::atomic<bool> pauseFlag(false);
 Mat latestFrame;
                 
 // Extern C block to expose the function to C
@@ -22,6 +23,12 @@ extern "C" {
         }
 
         while (!stopFlag.load()) {
+            // If paused, wait until pause is disabled
+            if (pauseFlag.load()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(30));
+                continue;  // Skip the current loop iteration if paused
+            }
+
             cap >> latestFrame;
             if (latestFrame.empty()) {
                 printf("Frame is Empty");
@@ -36,18 +43,26 @@ extern "C" {
  
     void startVideoCaptureInThread() {
         stopFlag = false;
+        pauseFlag = false;
         videoThread = std::thread(runVideoCapture);
     }
 
     void stopVideoCapture() {
-         stopFlag = true;
+        stopFlag = true;
         if (videoThread.joinable()) {
             videoThread.join();
         }
     }
 
-    uint8_t* getLatestFrameBytes(int* length) {
+    void pauseVideoCapture() {
+        pauseFlag = true;  // Set pause flag to true
+    }
 
+    void resumeVideoCapture() {
+        pauseFlag = false;  // Set pause flag to false to resume capture
+    }
+
+    uint8_t* getLatestFrameBytes(int* length) {
         // Ensure the pointer is valid
         if (!length) {
             cout << "Length pointer is null." << endl;
@@ -55,7 +70,6 @@ extern "C" {
         }
 
         *length = 0;  // Initialize length to 0
-        
         
         if (latestFrame.empty()) {
             printf("Frame Empty");
@@ -86,4 +100,3 @@ extern "C" {
         return data;
     }
 }
- 

@@ -6,6 +6,9 @@ extern "C" {
          
 void startVideoCaptureInThread();
 void stopVideoCapture();
+void pauseVideoCapture();
+void resumeVideoCapture();
+
 uint8_t* getLatestFrameBytes(int* length); 
     
 #ifdef __cplusplus

@@ -45,6 +45,24 @@ class CameraLinuxBindings {
   late final _stopVideoCapture =
       _stopVideoCapturePtr.asFunction<void Function()>();
 
+  void pauseVideoCapture() {
+    return _pauseVideoCapture();
+  }
+
+  late final _pauseVideoCapturePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>('pauseVideoCapture');
+  late final _pauseVideoCapture =
+      _pauseVideoCapturePtr.asFunction<void Function()>();
+
+  void resumeVideoCapture() {
+    return _resumeVideoCapture();
+  }
+
+  late final _resumeVideoCapturePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>('resumeVideoCapture');
+  late final _resumeVideoCapture =
+      _resumeVideoCapturePtr.asFunction<void Function()>();
+
   ffi.Pointer<ffi.Uint8> getLatestFrameBytes(
     ffi.Pointer<ffi.Int> length,
   ) {
