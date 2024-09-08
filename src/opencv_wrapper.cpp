@@ -5,27 +5,37 @@
 
 using namespace std;
 using namespace cv;
-    
+
 std::thread videoThread;
 std::atomic<bool> stopFlag(false);
 std::atomic<bool> pauseFlag(false);
 Mat latestFrame;
-                
+
 // Extern C block to expose the function to C
 extern "C" {
+
+    // Function to check if a camera is connected
+    int isCameraConnected() {
+        VideoCapture cap(0); // Open the default camera (device 0)
+        if (!cap.isOpened()) {
+            return 0;  // Camera is not connected
+        }
+        cap.release();  // Release the camera resource after checking
+        return 1;  // Camera is connected
+    }
+
     // Function to capture video frames
     void runVideoCapture() {
         VideoCapture cap(0);
         if (!cap.isOpened()) {
             cout << "No video stream detected" << endl;
-            system("pause");
             return;
         }
 
         while (!stopFlag.load()) {
             // If paused, wait until pause is disabled
             if (pauseFlag.load()) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(30));
+                std::this_thread::sleep_for(std::chrono::milliseconds(20));
                 continue;  // Skip the current loop iteration if paused
             }
 
@@ -35,12 +45,11 @@ extern "C" {
                 break;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
         cap.release(); 
     }
 
- 
     void startVideoCaptureInThread() {
         stopFlag = false;
         pauseFlag = false;

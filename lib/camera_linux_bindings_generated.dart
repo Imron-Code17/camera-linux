@@ -77,4 +77,13 @@ class CameraLinuxBindings {
               ffi.Pointer<ffi.Int>)>>('getLatestFrameBytes');
   late final _getLatestFrameBytes = _getLatestFrameBytesPtr
       .asFunction<ffi.Pointer<ffi.Uint8> Function(ffi.Pointer<ffi.Int>)>();
+
+  int isCameraConnected() {
+    return _isCameraConnected();
+  }
+
+  late final _isCameraConnectedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>('isCameraConnected');
+  late final _isCameraConnected =
+      _isCameraConnectedPtr.asFunction<int Function()>();
 }
