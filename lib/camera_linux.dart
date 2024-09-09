@@ -65,28 +65,35 @@ class CameraLinux {
     _bindings.stopVideoCapture();
     _stopFrameTimer();
     stopCheckingCameraConnection();
-    _cleanup();
     if (isScan) {
+      _liveScanBarcode.add(Uint8List(0));
       _liveScanBarcode.close();
       _barcodeStreamController.close();
     } else {
+      _liveView.add(Uint8List(0));
       _liveView.close();
     }
+
     _checkCameraConnection.close();
+    _cleanup();
   }
 
   void pauseCamera() {
     _isPaused = true;
+    _bindings.pauseVideoCapture();
   }
 
   // Resume the camera feed
   void resumeCamera() {
     _isPaused = false;
+    _bindings.resumeVideoCapture();
   }
 
   Uint8List getLatestFrameData(Pointer<Uint8> framePointer, int frameSize) {
-    List<int> frameList = framePointer.asTypedList(frameSize);
-    return Uint8List.fromList(frameList);
+    if (frameSize <= 0) {
+      return Uint8List(0);
+    }
+    return framePointer.asTypedList(frameSize);
   }
 
   void _startFrameTimerForLiveView() {
