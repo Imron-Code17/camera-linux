@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
-import 'package:rxdart_ext/not_replay_value_stream.dart';
+import 'package:rxdart/rxdart.dart';
 import 'camera_linux_bindings_generated.dart';
 
 class CameraLinux {
