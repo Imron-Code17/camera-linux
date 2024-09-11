@@ -8,7 +8,7 @@ class CameraController extends State<CameraPreview> {
   static late CameraController instance;
   late CameraPreview view;
 
-  final cameraLinuxPlugin = CameraLinux(isCameraScan: true);
+  final cameraLinuxPlugin = CameraLinux();
 
   Future<Uint8List?> takePicture() async {
     Uint8List? image = await cameraLinuxPlugin.takePicture();
@@ -18,7 +18,7 @@ class CameraController extends State<CameraPreview> {
   @override
   void initState() {
     instance = this;
-    cameraLinuxPlugin.initializeCamera();
+    cameraLinuxPlugin.startCamera();
     super.initState();
   }
 

@@ -12,15 +12,15 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ScanBarcode extends StatefulWidget {
-  final Function(String?)? onScan;
-  const ScanBarcode({super.key, this.onScan});
+  final Function(String?) onScan;
+  final CameraLinux camera;
+  const ScanBarcode({super.key, required this.onScan, required this.camera});
 
   @override
   State<ScanBarcode> createState() => _ScanBarcodeState();
 }
 
 class _ScanBarcodeState extends State<ScanBarcode> {
-  final cameraLinuxPlugin = CameraLinux();
   Future<String> _writeFrameToFile(Uint8List frame) async {
     final directory = await getTemporaryDirectory();
     final file = File('${directory.path}/temp_image_qr.png');
@@ -30,7 +30,7 @@ class _ScanBarcodeState extends State<ScanBarcode> {
   }
 
   void readQrCode() {
-    cameraLinuxPlugin.listenCode
+    widget.camera.listenCode
         .throttleTime(const Duration(milliseconds: 1200))
         .listen((frame) async {
       if (frame != null && frame.isNotEmpty) {
@@ -38,7 +38,7 @@ class _ScanBarcodeState extends State<ScanBarcode> {
         final xFile = XFile(filePath);
         final Code result = await zx.readBarcodeImagePath(
             xFile, DecodeParams(imageFormat: ImageFormat.rgb));
-        widget.onScan?.call(result.text);
+        widget.onScan(result.text);
       } else {
         log("Received null or empty frame");
       }
@@ -46,24 +46,12 @@ class _ScanBarcodeState extends State<ScanBarcode> {
   }
 
   @override
-  void initState() {
-    cameraLinuxPlugin.initializeCamera();
-    readQrCode();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    cameraLinuxPlugin.stopCamera();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return StreamBuilder<Uint8List>(
-      stream: cameraLinuxPlugin.streamBarcode.stream,
+      stream: widget.camera.streamBarcode.stream,
       initialData: Uint8List(0),
       builder: (context, snapshot) {
+        log(snapshot.data.toString());
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {

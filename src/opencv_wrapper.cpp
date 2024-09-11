@@ -23,6 +23,7 @@ extern "C" {
 int isCameraConnected() {
     VideoCapture cap(0); // Buka kamera default (device 0)
     if (!cap.isOpened()) {
+        std::cerr << "Camera not detected" << std::endl;
         return 0;  // Kamera tidak terhubung
     }
     cap.release();  // Lepaskan sumber daya kamera setelah memeriksa
@@ -34,9 +35,7 @@ void runVideoCapture() {
     VideoCapture cap(0);
     if (!cap.isOpened()) {
         std::cerr << "No video stream detected" << std::endl;
-        return;
-    }
-
+    } else {
     // Atur properti kamera untuk optimasi
     cap.set(CAP_PROP_FRAME_WIDTH, 640); // Atur resolusi lebih rendah untuk mengurangi beban CPU
     cap.set(CAP_PROP_FRAME_HEIGHT, 480);
@@ -52,7 +51,6 @@ void runVideoCapture() {
         Mat frame;
         cap >> frame;
         if (frame.empty()) {
-            std::cerr << "Frame is Empty" << std::endl;
             break;
         }
 
@@ -65,6 +63,7 @@ void runVideoCapture() {
         std::this_thread::sleep_for(std::chrono::milliseconds(33)); // ~30 fps
     }
     cap.release();
+    }
 }
 
 // Fungsi untuk memulai penangkapan video dalam thread terpisah
@@ -118,7 +117,6 @@ uint8_t* getLatestFrameBytes(int* length) {
     {
         std::lock_guard<std::mutex> lock(frameMutex);
         if (latestFrame.empty()) {
-            std::cerr << "Frame Empty" << std::endl;
             return nullptr;
         }
         frame = latestFrame.clone(); // Clone frame untuk menghindari data races
