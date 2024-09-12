@@ -39,7 +39,7 @@ void runVideoCapture() {
     // Atur properti kamera untuk optimasi
     cap.set(CAP_PROP_FRAME_WIDTH, 640); // Atur resolusi HD
     cap.set(CAP_PROP_FRAME_HEIGHT, 480);
-    cap.set(CAP_PROP_FPS, 14); // Atur frame rate
+    cap.set(CAP_PROP_FPS, 30); // Atur frame rate
 
     while (!stopFlag.load()) {
         // Jika dijeda, tunggu hingga dijalankan kembali
@@ -60,7 +60,7 @@ void runVideoCapture() {
         }
 
         // Tidur untuk menjaga frame rate dan mengurangi penggunaan CPU
-        std::this_thread::sleep_for(std::chrono::milliseconds(69)); // ~14 fps
+        std::this_thread::sleep_for(std::chrono::milliseconds(33)); // ~30 fps
     }
     cap.release();
     }
