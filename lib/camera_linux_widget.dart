@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:camera_linux/camera_linux.dart';
+import 'package:camera_linux/camera_linux_controller.dart';
 import 'package:camera_linux/camera_linux_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
@@ -10,27 +10,25 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CameraLinuxWidget extends StatefulWidget {
-  final bool isCameraScan;
-  final Function(String?)? onScan;
-  final Widget Function(void Function() open)? connectedWiget;
-  final Widget Function(void Function() retry)? notConnectedWidget;
-  final Widget Function(void Function() retry)? errorWidget;
-  final Widget Function(void Function() resume, void Function() stop)?
-      pausedWidget;
-  final Widget Function(void Function() pause, void Function() stop,
-      Future<Uint8List?> Function() capture, Widget preview)? openedWidget;
-  final Widget Function(Function() resume, Function() open)? closedWidget;
+  final CameraLinuxController controller;
+  final Widget? loadingWidget;
+  final Widget? connectedWiget;
+  final Widget? notConnectedWidget;
+  final Widget? errorWidget;
+  final Widget? pausedWidget;
+  final Widget? Function(Widget preview)? openedWidget;
+  final Widget? closedWidget;
 
   const CameraLinuxWidget({
     super.key,
-    this.onScan,
+    required this.controller,
     this.connectedWiget,
     this.notConnectedWidget,
     this.errorWidget,
     this.pausedWidget,
     this.openedWidget,
+    this.loadingWidget,
     this.closedWidget,
-    this.isCameraScan = false,
   });
 
   @override
@@ -40,65 +38,22 @@ class CameraLinuxWidget extends StatefulWidget {
 class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
   late CameraLinux _cameraP;
   late CameraStatus _status;
-  Uint8List? _capturedImage;
-
-  Future<String> _writeFrameToFile(Uint8List frame) async {
-    final directory = await getTemporaryDirectory();
-    final file = File('${directory.path}/temp_image_qr.png');
-
-    await file.writeAsBytes(frame);
-    return file.path;
-  }
-
-  void readQrCode() {
-    _cameraP.listenCode
-        .throttleTime(const Duration(milliseconds: 1200))
-        .listen((frame) async {
-      if (frame.isNotEmpty) {
-        final filePath = await _writeFrameToFile(frame);
-        final xFile = XFile(filePath);
-        final result = await zx.readBarcodeImagePath(
-            xFile, DecodeParams(imageFormat: ImageFormat.rgb));
-
-        if (widget.onScan != null) widget.onScan!(result.text);
-      }
-    });
-  }
 
   @override
   void initState() {
-    _cameraP = CameraLinux(isCameraScan: widget.isCameraScan);
+    _cameraP = CameraLinux(isCameraScan: widget.controller.onScan != null);
     _status = _cameraP.checkCameraStatus();
-    readQrCode();
+    if (widget.controller.onScan != null) _readQrCode();
+    widget.controller.openCam = _openCam;
+    widget.controller.retry = _retry;
+    widget.controller.pause = _pause;
+    widget.controller.stop = _stop;
+    widget.controller.resume = _resume;
+    widget.controller.capture = _capture;
     super.initState();
   }
 
-  Widget get _preview {
-    return StreamBuilder<Uint8List>(
-      stream: _cameraP.streamBarcode.stream,
-      initialData: Uint8List(0),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No frame available'));
-        }
-
-        return Transform.flip(
-          flipX: false,
-          flipY: false,
-          filterQuality: FilterQuality.high,
-          child: Image.memory(
-            snapshot.data!,
-            gaplessPlayback: true,
-            filterQuality: FilterQuality.high,
-          ),
-        );
-      },
-    );
-  }
+  Uint8List? _capturedImage;
 
   Future<void> _openCam() async {
     _status = await _cameraP.startCamera();
@@ -135,9 +90,65 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
     }
   }
 
+  void _readQrCode() {
+    _cameraP.listenCode
+        .throttleTime(const Duration(milliseconds: 1200))
+        .listen((frame) async {
+      if (frame.isNotEmpty) {
+        final filePath = await _writeFrameToFile(frame);
+        final xFile = XFile(filePath);
+        final result = await zx.readBarcodeImagePath(
+            xFile, DecodeParams(imageFormat: ImageFormat.rgb));
+
+        if (result.text != null) {
+          widget.controller.onScan!(result.text!);
+          setState(() {
+            _status = _cameraP.pauseCamera();
+          });
+        }
+      }
+    });
+  }
+
+  Future<String> _writeFrameToFile(Uint8List frame) async {
+    final directory = await getTemporaryDirectory();
+    final file = File('${directory.path}/temp_image_qr.png');
+
+    await file.writeAsBytes(frame);
+    return file.path;
+  }
+
+  Widget get _preview {
+    return StreamBuilder<Uint8List>(
+      stream: _cameraP.streamBarcode.stream,
+      initialData: Uint8List(0),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return widget.loadingWidget ??
+              const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No frame available'));
+        }
+
+        return Transform.rotate(
+          angle: -3.14159 / 2,
+          filterQuality: FilterQuality.high,
+          child: Image.memory(
+            snapshot.data!,
+            gaplessPlayback: true,
+            filterQuality: FilterQuality.high,
+            fit: BoxFit.cover,
+          ),
+        );
+      },
+    );
+  }
+
   Widget get _connectedWidget {
     return widget.connectedWiget != null
-        ? widget.connectedWiget!(_openCam)
+        ? widget.connectedWiget!
         : Center(
             child: Column(
               children: [
@@ -151,7 +162,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
 
   Widget get _notConnectedWidget {
     return widget.notConnectedWidget != null
-        ? widget.notConnectedWidget!(_retry)
+        ? widget.notConnectedWidget!
         : Center(
             child: Column(
               children: [
@@ -164,7 +175,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
 
   Widget get _errorWidget {
     return widget.errorWidget != null
-        ? widget.errorWidget!(_retry)
+        ? widget.errorWidget!
         : Center(
             child: Column(
               children: [
@@ -177,12 +188,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
 
   Widget get _openedWidget {
     return widget.openedWidget != null
-        ? widget.openedWidget!(
-            _pause,
-            _stop,
-            _capture,
-            _preview,
-          )
+        ? widget.openedWidget!(_preview)!
         : Center(
             child: Column(
               children: [
@@ -205,7 +211,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
 
   Widget get _pausedWidget {
     return widget.pausedWidget != null
-        ? widget.pausedWidget!(_resume, _stop)
+        ? widget.pausedWidget!
         : Center(
             child: Column(
               children: [
@@ -217,8 +223,14 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
                   ),
                 _preview,
                 Text(_status.message),
-                ElevatedButton(onPressed: _resume, child: const Text("Resume")),
-                ElevatedButton(onPressed: _stop, child: const Text("Stop")),
+                ElevatedButton(
+                  onPressed: _resume,
+                  child: const Text("Resume"),
+                ),
+                ElevatedButton(
+                  onPressed: _stop,
+                  child: const Text("Stop"),
+                ),
               ],
             ),
           );
@@ -229,12 +241,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
       child: Column(
         children: [
           Text(_status.message),
-          ElevatedButton(
-              onPressed: () async {
-                _status = await _cameraP.startCamera();
-                setState(() {});
-              },
-              child: const Text("Open Camera"))
+          ElevatedButton(onPressed: _openCam, child: const Text("Open Camera"))
         ],
       ),
     );

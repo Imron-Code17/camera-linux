@@ -1,5 +1,6 @@
 {
     "cmake.sourceDirectory": "/home/gafar/Developments/photoai/camera-linux/src",
+    "editor.formatOnSave": true,
     "files.associations": {
         "chrono": "cpp",
         "ostream": "cpp"

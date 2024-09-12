@@ -1,3 +1,4 @@
+import 'package:camera_linux/camera_linux_controller.dart';
 import 'package:camera_linux/camera_linux_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late CameraLinuxController _camLinuxC;
+
+  @override
+  void initState() {
+    _camLinuxC = CameraLinuxController(onScan: (p0) => print(p0));
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,11 +30,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: CameraLinuxWidget(
-          isCameraScan: true,
-          openedWidget: (pause, stop, capture, preview) {
-            return preview;
-          },
-        ),
+            controller: _camLinuxC, openedWidget: (p) => Center(child: p)),
       ),
     );
   }
