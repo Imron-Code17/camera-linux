@@ -1,13 +1,11 @@
 class CameraLinuxController {
-  late Future<void> Function() openCam;
-  late void Function() retry;
-  late void Function() pause;
-  late void Function() stop;
-  late void Function() resume;
-  late void Function() capture;
+  Future<void> Function()? openCam;
+  void Function()? retry;
+  void Function()? pause;
+  void Function()? stop;
+  void Function()? resume;
+  void Function()? capture;
   late void Function(String)? onScan;
 
-  CameraLinuxController({
-    required this.onScan,
-  });
+  CameraLinuxController({this.onScan});
 }
