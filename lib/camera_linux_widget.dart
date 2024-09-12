@@ -78,7 +78,6 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
 
   @override
   void dispose() {
-    _stop();
     _controller.dispose();
     super.dispose();
   }
@@ -102,6 +101,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
 
   void _stop() {
     _status = _cameraP.stopCamera();
+    if (mounted) setState(() {});
   }
 
   void _resume() {
