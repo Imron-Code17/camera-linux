@@ -15,7 +15,7 @@ class CameraLinuxWidget extends StatefulWidget {
   final Widget? connectedWiget;
   final Widget? notConnectedWidget;
   final Widget? errorWidget;
-  final Widget? pausedWidget;
+  final Widget? Function(Widget preview)? pausedWidget;
   final Widget? Function(Widget preview)? openedWidget;
   final Widget? closedWidget;
 
@@ -43,6 +43,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
   void initState() {
     _cameraP = CameraLinux(isCameraScan: widget.controller.onScan != null);
     _status = _cameraP.checkCameraStatus();
+    if (_status is CameraStatusConnected) _openCam();
     if (widget.controller.onScan != null) _readQrCode();
     widget.controller.openCam = _openCam;
     widget.controller.retry = _retry;
@@ -57,33 +58,33 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
 
   Future<void> _openCam() async {
     _status = await _cameraP.startCamera();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _retry() {
     _status = _cameraP.checkCameraStatus();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _pause() {
     _status = _cameraP.pauseCamera();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _stop() {
     _status = _cameraP.stopCamera();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _resume() {
     _status = _cameraP.resumeCamera();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   Future<Uint8List?> _capture() async {
     try {
       _capturedImage = await _cameraP.captureImage();
-      setState(() {});
+      if (mounted) setState(() {});
       return _capturedImage;
     } catch (e) {
       return null;
@@ -102,9 +103,6 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
 
         if (result.text != null) {
           widget.controller.onScan!(result.text!);
-          setState(() {
-            _status = _cameraP.pauseCamera();
-          });
         }
       }
     });
@@ -211,7 +209,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget> {
 
   Widget get _pausedWidget {
     return widget.pausedWidget != null
-        ? widget.pausedWidget!
+        ? widget.pausedWidget!(_preview)!
         : Center(
             child: Column(
               children: [
