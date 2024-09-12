@@ -124,7 +124,7 @@ uint8_t* getLatestFrameBytes(int* length) {
 
     // Encode frame sebagai JPEG dengan kualitas lebih rendah untuk mengurangi ukuran
     std::vector<uint8_t> buf;
-    std::vector<int> params = { IMWRITE_JPEG_QUALITY, 50 };
+    std::vector<int> params = { IMWRITE_JPEG_QUALITY, 100 };
     bool encodeSuccess = imencode(".jpg", frame, buf, params);
 
     // Periksa apakah encoding berhasil
