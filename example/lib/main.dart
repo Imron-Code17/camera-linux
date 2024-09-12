@@ -20,9 +20,12 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body:  CameraLinuxWidget(isCameraScan: true, openedWidget: (pause, stop, capture, preview) {
-          return preview;
-        },),
+        body: CameraLinuxWidget(
+          isCameraScan: true,
+          openedWidget: (pause, stop, capture, preview) {
+            return preview;
+          },
+        ),
       ),
     );
   }
