@@ -45,18 +45,23 @@ class _ScanBarcodeState extends State<ScanBarcode> {
     });
   }
 
+    @override
+  void initState() {
+    readQrCode();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Uint8List>(
       stream: widget.camera.streamBarcode.stream,
       initialData: Uint8List(0),
       builder: (context, snapshot) {
-        log(snapshot.data.toString());
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData) {
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('No frame available'));
         }
 

@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    _status = _cameraLinuxPlugin.checkStatus();
+    _status = _cameraLinuxPlugin.checkCameraStatus();
     super.initState();
   }
 
@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
           Text(_status.message),
           ElevatedButton(
               onPressed: () {
-                _status = _cameraLinuxPlugin.checkStatus();
+                _status = _cameraLinuxPlugin.checkCameraStatus();
                 setState(() {});
               },
               child: Text("Retry"))
@@ -68,7 +68,7 @@ class _MyAppState extends State<MyApp> {
           Text(_status.message),
           ElevatedButton(
               onPressed: () {
-                _status = _cameraLinuxPlugin.checkStatus();
+                _status = _cameraLinuxPlugin.checkCameraStatus();
                 setState(() {});
               },
               child: Text("Retry"))
@@ -130,6 +130,11 @@ class _MyAppState extends State<MyApp> {
               height: 40,
               width: 40,
             ),
+                     ScanBarcode(
+              camera: _cameraLinuxPlugin,
+              onScan: (text) {
+                print(text);
+              }),
           Text(_status.message),
           ElevatedButton(
               onPressed: () {

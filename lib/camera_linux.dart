@@ -3,9 +3,11 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:typed_data';
+
 import 'package:camera_linux/camera_linux_status.dart';
 import 'package:ffi/ffi.dart';
 import 'package:rxdart/rxdart.dart';
+
 import 'camera_linux_bindings_generated.dart';
 
 class CameraLinux {
@@ -32,7 +34,7 @@ class CameraLinux {
   }
 
   // Check camera status
-  CameraStatus checkStatus() {
+  CameraStatus checkCameraStatus() {
     try {
       final status = _bindings.isCameraConnected();
       if (status == 1) {
@@ -48,8 +50,8 @@ class CameraLinux {
   // Start Camera
   Future<CameraStatus> startCamera() async {
     try {
-      final status = _bindings.isCameraConnected();
-      if (status != 1) {
+      final con = _bindings.isCameraConnected();
+      if (con != 1) {
         return CameraStatusNotConnected('Camera not connected');
       }
 
@@ -104,7 +106,7 @@ class CameraLinux {
       } else {
         _liveView.add(Uint8List(0));
         _liveView.close();
-        
+
         _liveView = BehaviorSubject<Uint8List>();
       }
 
@@ -171,7 +173,7 @@ class CameraLinux {
 
         _framePointer = _bindings.getLatestFrameBytes(_lengthPtr);
         final frameSize = _lengthPtr.value;
-
+        
         if (frameSize > 0) {
           final latestFrame = _getLatestFrameData(_framePointer, frameSize);
           _liveScanBarcode.add(latestFrame);
