@@ -28,6 +28,7 @@ class CameraLinuxWidget extends StatefulWidget {
   final Widget? Function(Widget preview)? openedWidget;
   final Widget? closedWidget;
   final Function(Uint8List)? onCapture;
+  final Widget? overlayWidget;
 
   const CameraLinuxWidget(
       {super.key,
@@ -40,7 +41,8 @@ class CameraLinuxWidget extends StatefulWidget {
       this.openedWidget,
       this.loadingWidget,
       this.closedWidget,
-      this.onCapture});
+      this.onCapture,
+      this.overlayWidget});
 
   @override
   State<CameraLinuxWidget> createState() => _CameraLinuxWidgetState();
@@ -279,6 +281,11 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
               ),
             ),
           ),
+          Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: widget.overlayWidget ?? const SizedBox.shrink()),
           Positioned.fill(
               child: Visibility(
             visible: countTakePhoto < 4 && countTakePhoto != 0,
