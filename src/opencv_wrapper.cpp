@@ -36,35 +36,40 @@ void runVideoCapture() {
     if (!cap.isOpened()) {
         std::cerr << "No video stream detected" << std::endl;
     } else {
-    // Atur properti kamera untuk optimasi
-    cap.set(CAP_PROP_FRAME_WIDTH, 640); // Atur resolusi HD
-    cap.set(CAP_PROP_FRAME_HEIGHT, 480);
-    cap.set(CAP_PROP_FPS, 30); // Atur frame rate
+        // Atur properti kamera untuk optimasi
+        cap.set(CAP_PROP_FRAME_WIDTH, 640); // Atur resolusi
+        cap.set(CAP_PROP_FRAME_HEIGHT, 480);
+        cap.set(CAP_PROP_FPS, 30); // Atur frame rate
 
-    while (!stopFlag.load()) {
-        // Jika dijeda, tunggu hingga dijalankan kembali
-        if (pauseFlag.load()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            continue;  // Lewati iterasi loop saat dijeda
+        while (!stopFlag.load()) {
+            // Jika dijeda, tunggu hingga dijalankan kembali
+            if (pauseFlag.load()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                continue;  // Lewati iterasi loop saat dijeda
+            }
+
+            Mat frame;
+            cap >> frame;
+            if (frame.empty()) {
+                break;
+            }
+
+            // Rotasi frame 90 derajat ke atas agar orientasinya portrait
+            Mat rotatedFrame;
+            cv::rotate(frame, rotatedFrame, cv::ROTATE_90_COUNTERCLOCKWISE);
+
+            {
+                std::lock_guard<std::mutex> lock(frameMutex);
+                latestFrame = rotatedFrame.clone(); // Clone frame untuk menghindari masalah konkuren
+            }
+
+            // Tidur untuk menjaga frame rate dan mengurangi penggunaan CPU
+            std::this_thread::sleep_for(std::chrono::milliseconds(33)); // ~30 fps
         }
-
-        Mat frame;
-        cap >> frame;
-        if (frame.empty()) {
-            break;
-        }
-
-        {
-            std::lock_guard<std::mutex> lock(frameMutex);
-            latestFrame = frame.clone(); // Clone frame untuk menghindari masalah konkuren
-        }
-
-        // Tidur untuk menjaga frame rate dan mengurangi penggunaan CPU
-        std::this_thread::sleep_for(std::chrono::milliseconds(33)); // ~30 fps
-    }
-    cap.release();
+        cap.release();
     }
 }
+
 
 // Fungsi untuk memulai penangkapan video dalam thread terpisah
 void startVideoCaptureInThread() {

@@ -199,15 +199,11 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                         return const Center(child: Text('No frame available'));
                       }
 
-                      return Transform.rotate(
-                        angle: -3.14159 / 2,
+                      return Image.memory(
+                        snapshot.data!,
+                        gaplessPlayback: true,
                         filterQuality: FilterQuality.high,
-                        child: Image.memory(
-                          snapshot.data!,
-                          gaplessPlayback: true,
-                          filterQuality: FilterQuality.high,
-                          fit: BoxFit.cover,
-                        ),
+                        fit: BoxFit.cover,
                       );
                     },
                   )),
@@ -247,10 +243,10 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
     return SizedBox(
       height: MediaQuery.of(context).size.height / 1.4,
       width: MediaQuery.of(context).size.width / 1.14,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Center(
+      child: LayoutBuilder(builder: (context, constrain) {
+        return Stack(
+          children: [
+            Positioned.fill(
               child: StreamBuilder<Uint8List>(
                 stream: _cameraP.streamFrame.stream,
                 initialData: Uint8List(0),
@@ -264,43 +260,52 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                     return const Center(child: Text('No frame available'));
                   }
 
-                  return Transform.scale(
-                    scale: 1.4,
-                    child: Transform.rotate(
-                      angle: -3.14159 / 2,
-                      filterQuality: FilterQuality.high,
-                      child: Image.memory(
-                        snapshot.data!,
-                        gaplessPlayback: true,
-                        filterQuality: FilterQuality.high,
-                        fit: BoxFit.fitWidth,
+                  return Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Image.memory(
+                            snapshot.data!,
+                            gaplessPlayback: true,
+                            filterQuality: FilterQuality.high,
+                            fit: BoxFit.fitHeight,
+                            width: constrain.maxWidth,
+                            height: constrain.maxHeight,
+                          ),
+                        ),
                       ),
-                    ),
+                      Positioned.fill(
+                        child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: SizedBox(
+                              height: constrain.maxHeight / 1.6,
+                              width: constrain.maxWidth / 1.4,
+                              child: widget.overlayWidget ??
+                                  const SizedBox.shrink(),
+                            )),
+                      ),
+                    ],
                   );
                 },
               ),
             ),
-          ),
-          Positioned.fill(
-            child: Align(
-                alignment: Alignment.bottomCenter,
-                child: widget.overlayWidget ?? const SizedBox.shrink()),
-          ),
-          Positioned.fill(
-              child: Visibility(
-            visible: countTakePhoto < 4 && countTakePhoto != 0,
-            child: Center(
-                child: GradientText(
-                    Text('$countTakePhoto',
-                        style: const TextStyle(
-                            fontSize: 72, fontWeight: FontWeight.w600),
-                        textAlign: TextAlign.center),
-                    type: Type.linear,
-                    radius: 1,
-                    colors: const [Color(0xffAD9A4A), Colors.white])),
-          ))
-        ],
-      ),
+            Positioned.fill(
+                child: Visibility(
+              visible: countTakePhoto < 4 && countTakePhoto != 0,
+              child: Center(
+                  child: GradientText(
+                      Text('$countTakePhoto',
+                          style: const TextStyle(
+                              fontSize: 72, fontWeight: FontWeight.w600),
+                          textAlign: TextAlign.center),
+                      type: Type.linear,
+                      radius: 1,
+                      colors: const [Color(0xffAD9A4A), Colors.white])),
+            ))
+          ],
+        );
+      }),
     );
   }
 
