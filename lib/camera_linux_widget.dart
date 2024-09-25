@@ -13,7 +13,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobkit_dashed_border/mobkit_dashed_border.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:image/image.dart' as img;
 
 enum CameraType { scan, selfie }
 
@@ -120,24 +119,13 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         countTakePhoto = 4;
         _timer?.cancel();
         final result = await _cameraP.captureImage();
-        _capturedImage = rotateImage(result);
+        _capturedImage = result;
         widget.onCapture!(_capturedImage!);
         if (mounted) setState(() {});
         _pause();
         if (mounted) setState(() {});
       }
     });
-  }
-
-  Uint8List? rotateImage(Uint8List captureImage) {
-    img.Image? originalImage = img.decodeImage(captureImage);
-    if (originalImage != null) {
-      img.Image rotatedImage = img.copyRotate(originalImage, angle: -90);
-      Uint8List rotatedBytes = Uint8List.fromList(img.encodeJpg(rotatedImage));
-      return rotatedBytes;
-    } else {
-      return null;
-    }
   }
 
   void _readQrCode() {
