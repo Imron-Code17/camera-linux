@@ -281,11 +281,11 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
               ),
             ),
           ),
-          Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: widget.overlayWidget ?? const SizedBox.shrink()),
+          Positioned.fill(
+            child: Align(
+                alignment: Alignment.bottomCenter,
+                child: widget.overlayWidget ?? const SizedBox.shrink()),
+          ),
           Positioned.fill(
               child: Visibility(
             visible: countTakePhoto < 4 && countTakePhoto != 0,
