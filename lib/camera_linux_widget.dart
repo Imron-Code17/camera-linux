@@ -55,6 +55,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
   late CameraStatus _status;
   int countTakePhoto = 4;
   Timer? _timer;
+  double _opacity = 0.0;
 
   @override
   void initState() {
@@ -116,6 +117,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
       if (mounted) setState(() {});
 
       if (countTakePhoto == 0) {
+        _triggerFlash();
         countTakePhoto = 4;
         _timer?.cancel();
         final result = await _cameraP.captureImage();
@@ -142,6 +144,17 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
           widget.controller.onScan!(result.text!);
         }
       }
+    });
+  }
+
+  void _triggerFlash() {
+    setState(() {
+      _opacity = 1.0;
+    });
+    Timer(const Duration(milliseconds: 100), () {
+      setState(() {
+        _opacity = 0.0;
+      });
     });
   }
 
@@ -273,6 +286,17 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                                   const SizedBox.shrink(),
                             )),
                       ),
+                      Positioned.fill(
+                        child: AnimatedOpacity(
+                          opacity: _opacity,
+                          duration: const Duration(milliseconds: 100),
+                          child: Container(
+                            color: Colors.white,
+                            height: constrain.maxHeight,
+                            width: constrain.maxWidth,
+                          ),
+                        ),
+                      )
                     ],
                   );
                 },
