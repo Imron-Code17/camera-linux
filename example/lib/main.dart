@@ -59,7 +59,9 @@ class _MyAppState extends State<MyApp> {
                     ? Image.memory(_imageCapture!)
                     : const SizedBox.shrink()),
             const SizedBox(height: 34),
-            const ElevatedButton(onPressed: null, child: Text('Action'))
+            ElevatedButton(
+                onPressed: () => _camLinuxC.capture(),
+                child: const Text('Action'))
           ],
         ),
       ),
