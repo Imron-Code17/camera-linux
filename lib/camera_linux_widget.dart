@@ -267,8 +267,8 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                         child: Align(
                             alignment: Alignment.bottomCenter,
                             child: SizedBox(
-                              height: constrain.maxHeight / 1.2,
-                              width: constrain.maxWidth / 1.2,
+                              height: constrain.maxHeight,
+                              width: constrain.maxWidth,
                               child: widget.overlayWidget ??
                                   const SizedBox.shrink(),
                             )),
