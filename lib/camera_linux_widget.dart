@@ -106,6 +106,11 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
     if (mounted) setState(() {});
   }
 
+  void _restart() {
+    _stop();
+    _openCam();
+  }
+
   void _resume() {
     _status = _cameraP.resumeCamera();
     if (mounted) setState(() {});
@@ -342,7 +347,8 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
             child: Column(
               children: [
                 Text(_status.message),
-                ElevatedButton(onPressed: _retry, child: const Text("Retry"))
+                ElevatedButton(
+                    onPressed: _restart, child: const Text("Restart"))
               ],
             ),
           );
