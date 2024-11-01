@@ -51,6 +51,7 @@ class _MyAppState extends State<MyApp> {
                   openedWidget: (p) => Center(child: p),
                   pausedWidget: (p) => Center(child: p),
                   onCapture: onCapture,
+                  size: const Size(2160, 3840),
                 ),
               ),
             Visibility(

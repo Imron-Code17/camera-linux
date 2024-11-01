@@ -28,6 +28,7 @@ class CameraLinuxWidget extends StatefulWidget {
   final Widget? closedWidget;
   final Function(Uint8List)? onCapture;
   final Widget? overlayWidget;
+  final Size size;
 
   const CameraLinuxWidget(
       {super.key,
@@ -41,7 +42,8 @@ class CameraLinuxWidget extends StatefulWidget {
       this.loadingWidget,
       this.closedWidget,
       this.onCapture,
-      this.overlayWidget});
+      this.overlayWidget,
+      required this.size});
 
   @override
   State<CameraLinuxWidget> createState() => _CameraLinuxWidgetState();
@@ -171,8 +173,8 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
       children: [
         Center(
           child: Container(
-            height: MediaQuery.of(context).size.width / 1.8,
-            width: MediaQuery.of(context).size.width / 1.8,
+            height: widget.size.width / 1.8,
+            width: widget.size.width / 1.8,
             decoration: BoxDecoration(
                 border: DashedBorder.all(
                   color: const Color(0xffAD9A4A),
@@ -185,8 +187,8 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                 borderRadius: BorderRadius.circular(6)),
             child: Center(
               child: SizedBox(
-                  height: MediaQuery.of(context).size.width / 1.94,
-                  width: MediaQuery.of(context).size.width / 1.94,
+                  height: widget.size.width / 1.94,
+                  width: widget.size.width / 1.94,
                   child: StreamBuilder<Uint8List>(
                     stream: _cameraP.streamBarcode.stream,
                     initialData: Uint8List(0),
@@ -222,8 +224,8 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                 );
               },
               child: Container(
-                height: (MediaQuery.of(context).size.width / 1.94) / 4,
-                width: MediaQuery.of(context).size.width / 1.94,
+                height: (widget.size.width / 1.94) / 4,
+                width: widget.size.width / 1.94,
                 decoration: BoxDecoration(
                     gradient: LinearGradient(colors: [
                   Colors.blue.withOpacity(0),
@@ -242,8 +244,8 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
 
   Widget get _preview {
     return SizedBox(
-      height: MediaQuery.of(context).size.height / 1.4,
-      width: MediaQuery.of(context).size.width / 1.14,
+      height: widget.size.height / 1.4,
+      width: widget.size.width / 1.14,
       child: LayoutBuilder(builder: (context, constrain) {
         return Stack(
           children: [
