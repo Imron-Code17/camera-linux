@@ -37,8 +37,8 @@ void runVideoCapture() {
         std::cerr << "No video stream detected" << std::endl;
     } else {
         // Atur properti kamera untuk optimasi
-        cap.set(CAP_PROP_FRAME_WIDTH, 640); // Atur resolusi
-        cap.set(CAP_PROP_FRAME_HEIGHT, 480);
+        cap.set(CAP_PROP_FRAME_WIDTH, 1280); // Atur resolusi
+        cap.set(CAP_PROP_FRAME_HEIGHT, 960);
         cap.set(CAP_PROP_FPS, 30); // Atur frame rate
 
         while (!stopFlag.load()) {

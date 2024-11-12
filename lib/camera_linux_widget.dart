@@ -183,13 +183,13 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
             decoration: BoxDecoration(
                 border: DashedBorder.all(
                   color: const Color(0xffAD9A4A),
-                  dashLength: 40,
-                  width: 3,
+                  dashLength: 60,
+                  width: 5,
                   isOnlyCorner: true,
                   strokeAlign: BorderSide.strokeAlignOutside,
                   strokeCap: StrokeCap.round,
                 ),
-                borderRadius: BorderRadius.circular(6)),
+                borderRadius: BorderRadius.circular(8)),
             child: Center(
               child: SizedBox(
                   height: widget.size.width / 1.94,
@@ -249,8 +249,8 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
 
   Widget get _preview {
     return SizedBox(
-      height: widget.size.height / 1.4,
-      width: widget.size.width / 1.14,
+      height: widget.size.height / 1.2,
+      width: widget.size.width,
       child: LayoutBuilder(builder: (context, constrain) {
         return Stack(
           children: [
@@ -286,11 +286,13 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                       Positioned.fill(
                         child: Align(
                             alignment: Alignment.bottomCenter,
-                            child: SizedBox(
-                              height: constrain.maxHeight,
-                              width: constrain.maxWidth,
-                              child: widget.overlayWidget ??
-                                  const SizedBox.shrink(),
+                            child: Center(
+                              child: SizedBox(
+                                width: constrain.maxWidth,
+                                height: constrain.maxHeight,
+                                child: widget.overlayWidget ??
+                                    const SizedBox.shrink(),
+                              ),
                             )),
                       ),
                       Positioned.fill(
@@ -299,8 +301,8 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                           duration: const Duration(milliseconds: 100),
                           child: Container(
                             color: Colors.white,
-                            height: constrain.maxHeight,
                             width: constrain.maxWidth,
+                            height: constrain.maxHeight,
                           ),
                         ),
                       )
@@ -316,7 +318,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                   child: GradientText(
                       Text('$countTakePhoto',
                           style: const TextStyle(
-                              fontSize: 72, fontWeight: FontWeight.w600),
+                              fontSize: 142, fontWeight: FontWeight.w600),
                           textAlign: TextAlign.center),
                       type: Type.linear,
                       radius: 1,
