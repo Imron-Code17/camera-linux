@@ -48,8 +48,8 @@ void runVideoCapture() {
         while (!stopFlag.load()) {
             // Jika dijeda, tunggu hingga dijalankan kembali
             if (pauseFlag.load()) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                // std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                std::this_thread::sleep_for(std::chrono::milliseconds(130));
                 continue;  // Lewati iterasi loop saat dijeda
             }
 
@@ -69,8 +69,8 @@ void runVideoCapture() {
             }
 
             // Tidur untuk menjaga frame rate dan mengurangi penggunaan CPU
-            std::this_thread::sleep_for(std::chrono::milliseconds(15)); // ~30 fps
-            // std::this_thread::sleep_for(std::chrono::milliseconds(33)); // ~30 fps
+            // std::this_thread::sleep_for(std::chrono::milliseconds(15)); // ~30 fps
+            std::this_thread::sleep_for(std::chrono::milliseconds(130)); // ~30 fps
         }
         cap.release();
     }
@@ -135,7 +135,7 @@ uint8_t* getLatestFrameBytes(int* length) {
 
     // Encode frame sebagai JPEG dengan kualitas lebih rendah untuk mengurangi ukuran
     std::vector<uint8_t> buf;
-    std::vector<int> params = { IMWRITE_JPEG_QUALITY, 50 };
+    std::vector<int> params = { IMWRITE_JPEG_QUALITY, 70 };
     // std::vector<int> params = { IMWRITE_JPEG_QUALITY, 100 };
     bool encodeSuccess = imencode(".jpg", frame, buf, params);
 
