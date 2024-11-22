@@ -352,6 +352,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         ? widget.connectedWiget!
         : Center(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(_status.message),
                 ElevatedButton(
@@ -366,6 +367,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         ? widget.notConnectedWidget!
         : Center(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(_status.message),
                 ElevatedButton(
@@ -380,6 +382,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         ? widget.errorWidget!
         : Center(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(_status.message),
                 ElevatedButton(onPressed: _retry, child: const Text("Retry"))
@@ -394,6 +397,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
             widget.type == CameraType.scan ? _scanPreview : _preview)!
         : Center(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (_capturedImage != null)
                   Image.memory(
@@ -417,6 +421,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         ? widget.pausedWidget!(_preview)!
         : Center(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (_capturedImage != null)
                   Image.memory(
@@ -442,6 +447,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
   Widget get _closedWidget {
     return Center(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(_status.message),
           ElevatedButton(onPressed: _openCam, child: const Text("Open Camera"))

@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:camera_linux/camera_linux_controller.dart';
 import 'package:camera_linux/camera_linux_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,8 +23,12 @@ class _MyAppState extends State<MyApp> {
   Uint8List? _imageCapture;
 
   void onCapture(Uint8List image) {
-    setState(() {
-      _imageCapture = image;
+    getApplicationDocumentsDirectory().then((dir) {
+      final file = File('${dir.path}/image.png');
+      file.writeAsBytesSync(image);
+      setState(() {
+        _imageCapture = image;
+      });
     });
   }
 
@@ -48,8 +54,6 @@ class _MyAppState extends State<MyApp> {
                 child: CameraLinuxWidget(
                   controller: _camLinuxC,
                   type: CameraType.selfie,
-                  openedWidget: (p) => Center(child: p),
-                  pausedWidget: (p) => Center(child: p),
                   onCapture: onCapture,
                   size: const Size(480, 640),
                   overlayWidget: Image.asset('assets/images/jas.png'),
@@ -62,7 +66,7 @@ class _MyAppState extends State<MyApp> {
                     : const SizedBox.shrink()),
             const SizedBox(height: 34),
             ElevatedButton(
-              onPressed: _camLinuxC.capture,
+              onPressed: () => _camLinuxC.capture(),
               child: const Text('Action'),
             )
           ],
