@@ -51,7 +51,8 @@ class _MyAppState extends State<MyApp> {
                   openedWidget: (p) => Center(child: p),
                   pausedWidget: (p) => Center(child: p),
                   onCapture: onCapture,
-                  size: const Size(360, 800),
+                  size: const Size(480, 640),
+                  overlayWidget: Image.asset('assets/images/jas.png'),
                 ),
               ),
             Visibility(
@@ -61,8 +62,9 @@ class _MyAppState extends State<MyApp> {
                     : const SizedBox.shrink()),
             const SizedBox(height: 34),
             ElevatedButton(
-                onPressed: () => _camLinuxC.capture(),
-                child: const Text('Action'))
+              onPressed: _camLinuxC.capture,
+              child: const Text('Action'),
+            )
           ],
         ),
       ),
