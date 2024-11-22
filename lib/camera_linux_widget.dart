@@ -131,12 +131,24 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         countTakePhoto = 4;
         _timer?.cancel();
 
+        Uint8List capturedImage = await _cameraP.captureImage();
         Uint8List result;
 
         if (widget.overlayWidget != null) {
-          result = await _screenshotC.capture() ?? Uint8List(0);
+          result = await _screenshotC.captureFromWidget(SizedBox(
+            width: widget.size.width,
+            height: widget.size.height,
+            child: Stack(children: [
+              Image.memory(
+                capturedImage,
+                height: widget.size.height,
+                width: widget.size.width,
+              ),
+              widget.overlayWidget!,
+            ]),
+          ));
         } else {
-          result = await _cameraP.captureImage();
+          result = capturedImage;
         }
 
         _capturedImage = result;
@@ -166,9 +178,11 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
   }
 
   void _triggerFlash() {
-    setState(() {
-      _opacity = 1.0;
-    });
+    if (mounted) {
+      setState(() {
+        _opacity = 1.0;
+      });
+    }
     Timer(const Duration(milliseconds: 100), () {
       if (mounted) {
         setState(() {
@@ -281,49 +295,41 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                     return const Center(child: Text('No frame available'));
                   }
 
-                  return Screenshot(
-                    controller: _screenshotC,
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Image.memory(
-                              snapshot.data!,
-                              gaplessPlayback: true,
-                              filterQuality: FilterQuality.high,
-                              fit: BoxFit.fitHeight,
-                              width: constrain.maxWidth,
-                              height: constrain.maxHeight,
-                            ),
+                  return Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Image.memory(
+                            snapshot.data!,
+                            gaplessPlayback: true,
+                            filterQuality: FilterQuality.high,
+                            fit: BoxFit.fitHeight,
+                            width: constrain.maxWidth,
+                            height: constrain.maxHeight,
                           ),
                         ),
+                      ),
+                      if (widget.overlayWidget != null)
                         Positioned.fill(
-                          child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Center(
-                                child: SizedBox(
-                                  width: constrain.maxWidth,
-                                  height: constrain.maxHeight,
-                                  child: widget.overlayWidget ??
-                                      const SizedBox.shrink(),
-                                ),
-                              )),
+                          child: SizedBox(
+                            width: constrain.maxWidth,
+                            height: constrain.maxHeight,
+                            child: widget.overlayWidget,
+                          ),
                         ),
-                        if (widget.overlayWidget == null)
-                          Positioned.fill(
-                            child: AnimatedOpacity(
-                              opacity: _opacity,
-                              duration: const Duration(milliseconds: 100),
-                              child: Container(
-                                color: Colors.white,
-                                width: constrain.maxWidth,
-                                height: constrain.maxHeight,
-                              ),
-                            ),
-                          )
-                      ],
-                    ),
+                      Positioned.fill(
+                        child: AnimatedOpacity(
+                          opacity: _opacity,
+                          duration: const Duration(milliseconds: 100),
+                          child: Container(
+                            color: Colors.white,
+                            width: constrain.maxWidth,
+                            height: constrain.maxHeight,
+                          ),
+                        ),
+                      )
+                    ],
                   );
                 },
               ),
