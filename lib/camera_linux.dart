@@ -143,7 +143,7 @@ class CameraLinux {
 
   void _startFrameTimerForLiveView() {
     _frameTimer =
-        Timer.periodic(const Duration(milliseconds: 130), (timer) async {
+        Timer.periodic(const Duration(milliseconds: 2), (timer) async {
       try {
         if (_isPaused) {
           return;
@@ -165,7 +165,7 @@ class CameraLinux {
   // Start the Frame Timer for Barcode/QR Code Scan
   void _startFrameTimerForBarcodeScan() {
     _frameTimer =
-        Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+        Timer.periodic(const Duration(milliseconds: 20), (timer) async {
       try {
         if (_isPaused) {
           return;
