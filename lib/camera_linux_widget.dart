@@ -13,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobkit_dashed_border/mobkit_dashed_border.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:screenshot/screenshot.dart';
 
 enum CameraType { scan, selfie }
 
@@ -52,6 +53,7 @@ class CameraLinuxWidget extends StatefulWidget {
 class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  late ScreenshotController _screenshotC;
   late Animation<double> _animation;
   late CameraLinux _cameraP;
   late CameraStatus _status;
@@ -62,6 +64,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
   @override
   void initState() {
     _cameraP = CameraLinux(isCameraScan: widget.type == CameraType.scan);
+    _screenshotC = ScreenshotController();
     _status = _cameraP.checkCameraStatus();
     if (_status is CameraStatusConnected) _openCam();
     if (widget.controller.onScan != null) _readQrCode();
@@ -127,7 +130,27 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         _triggerFlash();
         countTakePhoto = 4;
         _timer?.cancel();
-        final result = await _cameraP.captureImage();
+
+        Uint8List capturedImage = await _cameraP.captureImage();
+        Uint8List result;
+
+        if (widget.overlayWidget != null) {
+          result = await _screenshotC.captureFromWidget(SizedBox(
+            width: widget.size.width,
+            height: widget.size.height,
+            child: Stack(children: [
+              Image.memory(
+                capturedImage,
+                height: widget.size.height,
+                width: widget.size.width,
+              ),
+              widget.overlayWidget!,
+            ]),
+          ));
+        } else {
+          result = capturedImage;
+        }
+
         _capturedImage = result;
         widget.onCapture!(_capturedImage!);
         if (mounted) setState(() {});
@@ -155,13 +178,17 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
   }
 
   void _triggerFlash() {
-    setState(() {
-      _opacity = 1.0;
-    });
-    Timer(const Duration(milliseconds: 100), () {
+    if (mounted) {
       setState(() {
-        _opacity = 0.0;
+        _opacity = 1.0;
       });
+    }
+    Timer(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        setState(() {
+          _opacity = 0.0;
+        });
+      }
     });
   }
 
@@ -283,18 +310,14 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                           ),
                         ),
                       ),
-                      Positioned.fill(
-                        child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Center(
-                              child: SizedBox(
-                                width: constrain.maxWidth,
-                                height: constrain.maxHeight,
-                                child: widget.overlayWidget ??
-                                    const SizedBox.shrink(),
-                              ),
-                            )),
-                      ),
+                      if (widget.overlayWidget != null)
+                        Positioned.fill(
+                          child: SizedBox(
+                            width: constrain.maxWidth,
+                            height: constrain.maxHeight,
+                            child: widget.overlayWidget,
+                          ),
+                        ),
                       Positioned.fill(
                         child: AnimatedOpacity(
                           opacity: _opacity,
@@ -335,6 +358,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         ? widget.connectedWiget!
         : Center(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(_status.message),
                 ElevatedButton(
@@ -349,6 +373,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         ? widget.notConnectedWidget!
         : Center(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(_status.message),
                 ElevatedButton(
@@ -363,6 +388,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         ? widget.errorWidget!
         : Center(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(_status.message),
                 ElevatedButton(onPressed: _retry, child: const Text("Retry"))
@@ -377,6 +403,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
             widget.type == CameraType.scan ? _scanPreview : _preview)!
         : Center(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (_capturedImage != null)
                   Image.memory(
@@ -400,6 +427,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
         ? widget.pausedWidget!(_preview)!
         : Center(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (_capturedImage != null)
                   Image.memory(
@@ -425,6 +453,7 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
   Widget get _closedWidget {
     return Center(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(_status.message),
           ElevatedButton(onPressed: _openCam, child: const Text("Open Camera"))
