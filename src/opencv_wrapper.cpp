@@ -58,9 +58,13 @@ void runVideoCapture() {
             Mat rotatedFrame;
             cv::rotate(frame, rotatedFrame, cv::ROTATE_90_COUNTERCLOCKWISE);
 
+            // Flip frame secara horizontal
+            Mat flippedFrame;
+            cv::flip(rotatedFrame, flippedFrame, 1);
+
             {
                 std::lock_guard<std::mutex> lock(frameMutex);
-                latestFrame = rotatedFrame.clone(); // Clone frame untuk menghindari masalah konkuren
+                latestFrame = flippedFrame.clone(); // Clone frame untuk menghindari masalah konkuren
             }
 
             // Tidur untuk menjaga frame rate dan mengurangi penggunaan CPU

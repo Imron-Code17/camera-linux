@@ -139,13 +139,10 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
             width: widget.size.width,
             height: widget.size.height,
             child: Stack(children: [
-              Transform.flip(
-                flipX: true,
-                child: Image.memory(
-                  capturedImage,
-                  height: widget.size.height,
-                  width: widget.size.width,
-                ),
+              Image.memory(
+                capturedImage,
+                height: widget.size.height,
+                width: widget.size.width,
               ),
               widget.overlayWidget!,
             ]),
@@ -237,14 +234,11 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                         return const Center(child: Text('No frame available'));
                       }
 
-                      return Transform.flip(
-                        flipX: true,
-                        child: Image.memory(
-                          snapshot.data!,
-                          gaplessPlayback: true,
-                          filterQuality: FilterQuality.high,
-                          fit: BoxFit.cover,
-                        ),
+                      return Image.memory(
+                        snapshot.data!,
+                        gaplessPlayback: true,
+                        filterQuality: FilterQuality.high,
+                        fit: BoxFit.cover,
                       );
                     },
                   )),
@@ -306,16 +300,13 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                       Positioned.fill(
                         child: Align(
                           alignment: Alignment.bottomCenter,
-                          child: Transform.flip(
-                            flipX: true,
-                            child: Image.memory(
-                              snapshot.data!,
-                              gaplessPlayback: true,
-                              filterQuality: FilterQuality.high,
-                              fit: BoxFit.fitHeight,
-                              width: constrain.maxWidth,
-                              height: constrain.maxHeight,
-                            ),
+                          child: Image.memory(
+                            snapshot.data!,
+                            gaplessPlayback: true,
+                            filterQuality: FilterQuality.high,
+                            fit: BoxFit.fitHeight,
+                            width: constrain.maxWidth,
+                            height: constrain.maxHeight,
                           ),
                         ),
                       ),
