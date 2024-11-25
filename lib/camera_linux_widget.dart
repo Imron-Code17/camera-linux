@@ -139,10 +139,13 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
             width: widget.size.width,
             height: widget.size.height,
             child: Stack(children: [
-              Image.memory(
-                capturedImage,
-                height: widget.size.height,
-                width: widget.size.width,
+              Transform.flip(
+                flipX: true,
+                child: Image.memory(
+                  capturedImage,
+                  height: widget.size.height,
+                  width: widget.size.width,
+                ),
               ),
               widget.overlayWidget!,
             ]),
