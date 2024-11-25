@@ -234,11 +234,14 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                         return const Center(child: Text('No frame available'));
                       }
 
-                      return Image.memory(
-                        snapshot.data!,
-                        gaplessPlayback: true,
-                        filterQuality: FilterQuality.high,
-                        fit: BoxFit.cover,
+                      return Transform.flip(
+                        flipX: true,
+                        child: Image.memory(
+                          snapshot.data!,
+                          gaplessPlayback: true,
+                          filterQuality: FilterQuality.high,
+                          fit: BoxFit.cover,
+                        ),
                       );
                     },
                   )),
@@ -300,13 +303,16 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
                       Positioned.fill(
                         child: Align(
                           alignment: Alignment.bottomCenter,
-                          child: Image.memory(
-                            snapshot.data!,
-                            gaplessPlayback: true,
-                            filterQuality: FilterQuality.high,
-                            fit: BoxFit.fitHeight,
-                            width: constrain.maxWidth,
-                            height: constrain.maxHeight,
+                          child: Transform.flip(
+                            flipX: true,
+                            child: Image.memory(
+                              snapshot.data!,
+                              gaplessPlayback: true,
+                              filterQuality: FilterQuality.high,
+                              fit: BoxFit.fitHeight,
+                              width: constrain.maxWidth,
+                              height: constrain.maxHeight,
+                            ),
                           ),
                         ),
                       ),
