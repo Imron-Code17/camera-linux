@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
                 type: CameraType.selfie,
                 onCapture: onCapture,
                 size: const Size(480, 640),
-                overlayWidget: Image.asset('assets/images/jas.png'),
+                // overlayWidget: Image.asset('assets/images/jas.png'),
               ),
           ],
         ),

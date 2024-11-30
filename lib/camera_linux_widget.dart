@@ -122,14 +122,17 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
   }
 
   void _capture() async {
+    _timer?.cancel();
+
     _timer = Timer.periodic(const Duration(seconds: 1), (value) async {
       countTakePhoto--;
       if (mounted) setState(() {});
 
       if (countTakePhoto == 0) {
+        _timer?.cancel();
+
         _triggerFlash();
         countTakePhoto = 4;
-        _timer?.cancel();
 
         Uint8List capturedImage = await _cameraP.captureImage();
         Uint8List result;
@@ -405,12 +408,12 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (_capturedImage != null)
-                  Image.memory(
-                    _capturedImage!,
-                    height: 40,
-                    width: 40,
-                  ),
+                // if (_capturedImage != null)
+                //   Image.memory(
+                //     _capturedImage!,
+                //     height: 40,
+                //     width: 40,
+                //   ),
                 _preview,
                 Text(_status.message),
                 ElevatedButton(onPressed: _pause, child: const Text("Pause")),
@@ -429,12 +432,12 @@ class _CameraLinuxWidgetState extends State<CameraLinuxWidget>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (_capturedImage != null)
-                  Image.memory(
-                    _capturedImage!,
-                    height: 40,
-                    width: 40,
-                  ),
+                // if (_capturedImage != null)
+                //   Image.memory(
+                //     _capturedImage!,
+                //     height: 40,
+                //     width: 40,
+                //   ),
                 _preview,
                 Text(_status.message),
                 ElevatedButton(
